@@ -8,6 +8,22 @@ services:
       - "27017:27017"
     volumes:
       - "mongo_data:/data/db"
+  basket.db:
+    container_name: basket.db
+    restart: always
+    ports:
+      - "6379:6379"
+  discount.db:
+    container_name: discount.db
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=DiscountDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
   catalog.api:
     container_name: catalog.api
     environment:
@@ -17,3 +33,13 @@ services:
       - catalog.db
     ports:
       - "8007:80"
+  basket.api:
+    container_name: basket.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "CacheSettings:ConnectionString=basket.db:6379"
+    depends_on:
+      - basket.db
+    ports:
+      - "8008:80"
+
